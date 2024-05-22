@@ -41,7 +41,7 @@ begin
     end;
   if not FileExists(ParamStr(1)) then // Check if ini file exists.
     begin
-    WriteLn('File not found.');
+    WriteLn('INI file not found.');
     exit;
     end;
   inipath := ExtractFilePath(ParamStr(1));
@@ -52,6 +52,8 @@ begin
     if not DirectoryExists(outfolder) then CreateDir(outfolder); // Create output folder if needed.
     outfolder := outfolder+'\'; // Append backslash.
     end;
+  WriteLn('INI file: '+ParamStr(1));
+  WriteLn('Output folder: '+outfolder);
 
   { Open ini and extract data. }
 
@@ -59,13 +61,16 @@ begin
   piececount := 0;
   AssignFile(inifile,ParamStr(1)); // Open ini file.
   Reset(inifile);
+  PNG := TPNGImage.Create; // Initialise PNG.
   while not eof(inifile) do
     begin
     ReadLn(inifile,s);
     if AnsiPos('image=',s) = 1 then
-      begin
-      PNG := TPNGImage.Create; // Initialise PNG.
+      try
       PNG.LoadFromFile(inipath+Explode(s,'image=',1)); // Load PNG.
+      except
+      WriteLn('Failed to load image.');
+      exit;
       end
     else if AnsiPos('palette=',s) = 1 then
       begin
@@ -99,5 +104,12 @@ begin
       Inc(piececount);
       end;
     end;
+  WriteLn(IntToStr(spritecount)+' sprites found.');
+  WriteLn(IntToStr(piececount)+' pieces found.');
   CloseFile(inifile);
+  if not Assigned(PNG) then
+    begin
+    WriteLn('PNG not defined.');
+    exit;
+    end;
 end.
