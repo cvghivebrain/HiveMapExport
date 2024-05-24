@@ -135,14 +135,15 @@ end;
 
 procedure NewFile(filelen: integer);
 begin
-  FillChar(filearray[0],fs,0); // Fill existing file with 0.
+  if fs > 0 then FillChar(filearray[0],fs,0); // Fill existing file with 0.
   SetLength(filearray,filelen);
   fs := filelen;
+  fpos := 0;
 end;
 
 procedure NewFileOutput(filelen: integer);
 begin
-  FillChar(outputarray[0],Length(outputarray),0); // Fill existing file with 0.
+  if Length(outputarray) > 0 then FillChar(outputarray[0],Length(outputarray),0); // Fill existing file with 0.
   SetLength(outputarray,filelen);
 end;
 
