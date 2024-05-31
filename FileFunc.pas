@@ -53,6 +53,7 @@ procedure ListFolders(dir: string; subfolders: boolean);
 procedure ListFiles(dir: string; subfolders: boolean);
 procedure GetBase64(a, a2: int64);
 function ByteToBase64(c: byte): byte;
+procedure MakeFolder(f: string);
 
 var
   myfile: file;
@@ -83,6 +84,7 @@ end;
 
 procedure SaveFile(savethis: string);
 begin
+  MakeFolder(savethis); // Create folder if needed.
   AssignFile(myfile,savethis); // Open file.
   FileMode := fmOpenReadWrite;
   ReWrite(myfile,1);
@@ -92,6 +94,7 @@ end;
 
 procedure SaveFileOutput(savethis: string);
 begin
+  MakeFolder(savethis); // Create folder if needed.
   AssignFile(myfile,savethis); // Open file.
   FileMode := fmOpenReadWrite;
   ReWrite(myfile,1);
@@ -107,6 +110,7 @@ var myclipfile: file;
 begin
   if a+len > fs then len := fs-a; // Don't allow clip to extend outside file.
   if a > fs then len := 0;
+  MakeFolder(clipthisfile); // Create folder if needed.
   AssignFile(myclipfile,clipthisfile); // Open file.
   FileMode := fmOpenReadWrite;
   ReWrite(myclipfile,1);
@@ -122,6 +126,7 @@ var myclipfile: file;
 begin
   if a+len > Length(outputarray) then len := Length(outputarray)-a; // Don't allow clip to extend outside file.
   if a > Length(outputarray) then len := 0;
+  MakeFolder(clipthisfile); // Create folder if needed.
   AssignFile(myclipfile,clipthisfile); // Open file.
   FileMode := fmOpenReadWrite;
   ReWrite(myclipfile,1);
@@ -578,6 +583,17 @@ begin
   else if c = Byte('+') then result := 62
   else if c = Byte('/') then result := 63
   else result := 64;
+end;
+
+{ Create folder if one doesn't exist. }
+
+procedure MakeFolder(f: string);
+begin
+  if DirectoryExists(ExtractFileDir(f)) then exit; // Do nothing if folder exists.
+  if AnsiPos(':',f) = 0 then // Check if path is relative or absolute.
+    ForceDirectories(GetCurrentDir+'\'+ExtractFileDir(f)) // Create folder.
+  else
+    ForceDirectories(ExtractFileDir(f));
 end;
 
 end.

@@ -8,13 +8,14 @@ uses
   Windows,
   Vcl.Graphics,
   Vcl.Imaging.pngimage,
+  StrUtils,
   FileFunc in 'FileFunc.pas',
   ExplodeFunc in 'ExplodeFunc.pas';
 
 var
   i, j, spritecount, piececount: integer;
-  outfolder, inipath, s: string;
-  inifile: textfile;
+  outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline: string;
+  inifile, mapasmfile, dplcasmfile, gfxasmfile: textfile;
   PNG: TPNGImage;
   palarray: array[0..63] of TColor;
   spritenames: array of string;
@@ -157,7 +158,12 @@ begin
       piecetable[(piececount*4)+2] := StrToInt(Explode(s,',',2)); // Piece palette.
       piecetable[(piececount*4)+3] := StrToInt(Explode(s,',',3)); // Piece size.
       Inc(piececount);
-      end;
+      end
+    else if AnsiPos('mapasmfile=',s) = 1 then mapasm := outfolder+Explode(s,'mapasmfile=',1)
+    else if AnsiPos('dplcasmfile=',s) = 1 then dplcasm := outfolder+Explode(s,'dplcasmfile=',1)
+    else if AnsiPos('gfxasmfile=',s) = 1 then gfxasm := outfolder+Explode(s,'gfxasmfile=',1)
+    else if AnsiPos('gfxline=',s) = 1 then gfxline := Explode(s,'gfxline=',1);
+    if mapasm = '' then mapasm := outfolder+'_mappings.asm'; // Default mappings file.
     end;
   WriteLn(IntToStr(spritecount)+' sprites found.');
   WriteLn(IntToStr(piececount)+' pieces found.');
@@ -180,4 +186,29 @@ begin
         end;
     if fs > 0 then SaveFile(outfolder+spritenames[i]+'.bin'); // Save sprite file if it contained pieces.
     end;
+
+  { Open main mappings file. }
+
+  AssignFile(mapasmfile,mapasm); // Open asm file.
+  ReWrite(mapasmfile); // Make file editable.
+
+  { Write gfx file list. }
+
+  if gfxasm <> '' then
+    begin
+    AssignFile(gfxasmfile,gfxasm); // Open asm file.
+    ReWrite(gfxasmfile); // Make file editable.
+    end;
+  for i := 0 to spritecount-1 do
+    begin
+    s := ReplaceStr(gfxline,'{name}',spritenames[i]);
+    s := ReplaceStr(s,'{file}',outfolder+spritenames[i]+'.bin');
+    s := ReplaceStr(s,'{filenopath}',spritenames[i]+'.bin');
+    if gfxasm <> '' then WriteLn(gfxasmfile,s)
+    else WriteLn(mapasmfile,s);
+    end;
+
+  CloseFile(mapasmfile);
+  if dplcasm <> '' then CloseFile(dplcasmfile);
+  if gfxasm <> '' then CloseFile(gfxasmfile);
 end.
