@@ -14,7 +14,8 @@ uses
 
 var
   i, j, spritecount, piececount: integer;
-  outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline: string;
+  outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline,
+  mapindexhead, mapindexfoot, mapindexline, maphead, mapfoot, mapline: string;
   inifile, mapasmfile, dplcasmfile, gfxasmfile: textfile;
   PNG: TPNGImage;
   palarray: array[0..63] of TColor;
@@ -84,6 +85,14 @@ begin
         end;
       WriteDword(fs,pixrow); // Append longword to file.
       end;
+end;
+
+{ Write line to asm file. }
+
+procedure WriteASM(var myfile: textfile; s: string);
+begin
+  s := ReplaceStr(s,'{n}',#13#10); // Insert linebreaks.
+  WriteLn(myfile,s);
 end;
 
 begin
@@ -162,7 +171,13 @@ begin
     else if AnsiPos('mapasmfile=',s) = 1 then mapasm := outfolder+Explode(s,'mapasmfile=',1)
     else if AnsiPos('dplcasmfile=',s) = 1 then dplcasm := outfolder+Explode(s,'dplcasmfile=',1)
     else if AnsiPos('gfxasmfile=',s) = 1 then gfxasm := outfolder+Explode(s,'gfxasmfile=',1)
-    else if AnsiPos('gfxline=',s) = 1 then gfxline := Explode(s,'gfxline=',1);
+    else if AnsiPos('gfxline=',s) = 1 then gfxline := Explode(s,'gfxline=',1)
+    else if AnsiPos('mapindexhead=',s) = 1 then mapindexhead := Explode(s,'mapindexhead=',1)
+    else if AnsiPos('mapindexfoot=',s) = 1 then mapindexfoot := Explode(s,'mapindexfoot=',1)
+    else if AnsiPos('mapindexline=',s) = 1 then mapindexline := Explode(s,'mapindexline=',1)
+    else if AnsiPos('maphead=',s) = 1 then maphead := Explode(s,'maphead=',1)
+    else if AnsiPos('mapfoot=',s) = 1 then mapfoot := Explode(s,'mapfoot=',1)
+    else if AnsiPos('mapline=',s) = 1 then mapline := Explode(s,'mapline=',1);
     if mapasm = '' then mapasm := outfolder+'_mappings.asm'; // Default mappings file.
     end;
   WriteLn(IntToStr(spritecount)+' sprites found.');
@@ -192,6 +207,23 @@ begin
   AssignFile(mapasmfile,mapasm); // Open asm file.
   ReWrite(mapasmfile); // Make file editable.
 
+  { Write mappings file. }
+
+  WriteASM(mapasmfile,mapindexhead);
+  for i := 0 to spritecount-1 do
+    begin
+    s := ReplaceStr(mapindexline,'{name}',spritenames[i]);
+    WriteASM(mapasmfile,s);
+    end;
+  WriteASM(mapasmfile,mapindexfoot);
+  for i := 0 to spritecount-1 do
+    begin
+    s := ReplaceStr(maphead,'{name}',spritenames[i]);
+    WriteASM(mapasmfile,s);
+    s := ReplaceStr(mapfoot,'{name}',spritenames[i]);
+    WriteASM(mapasmfile,s);
+    end;
+
   { Write gfx file list. }
 
   if gfxasm <> '' then
@@ -204,8 +236,8 @@ begin
     s := ReplaceStr(gfxline,'{name}',spritenames[i]);
     s := ReplaceStr(s,'{file}',outfolder+spritenames[i]+'.bin');
     s := ReplaceStr(s,'{filenopath}',spritenames[i]+'.bin');
-    if gfxasm <> '' then WriteLn(gfxasmfile,s)
-    else WriteLn(mapasmfile,s);
+    if gfxasm <> '' then WriteASM(gfxasmfile,s)
+    else WriteASM(mapasmfile,s);
     end;
 
   CloseFile(mapasmfile);
