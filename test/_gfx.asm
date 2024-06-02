@@ -1,4 +1,3 @@
-gfx_Blank:		incbin "test\Blank.bin"
 gfx_Walk26:		incbin "test\Walk26.bin"
 gfx_Walk36:		incbin "test\Walk36.bin"
 gfx_Stand:		incbin "test\Stand.bin"

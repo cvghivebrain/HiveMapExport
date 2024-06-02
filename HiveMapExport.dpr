@@ -20,11 +20,12 @@ var
   PNG: TPNGImage;
   palarray: array[0..63] of TColor;
   spritenames: array of string;
-  spritetable, piecetable: array of integer;
+  spritetable, piecetable, spritesizes: array of integer;
 
 const
   piecewidth: array[0..15] of integer = (8,8,8,8,16,16,16,16,24,24,24,24,32,32,32,32);
   pieceheight: array[0..15] of integer = (8,16,24,32,8,16,24,32,8,16,24,32,8,16,24,32);
+  piecesize: array[0..15] of integer = (1,2,3,4,2,4,6,8,3,6,9,12,4,8,12,16);
 
 { Convert RGB hex string to TColor. }
 
@@ -188,6 +189,7 @@ begin
     WriteLn('PNG not defined.');
     exit;
     end;
+  SetLength(spritesizes,spritecount);
 
   { Read each sprite. }
 
@@ -198,6 +200,7 @@ begin
       if PieceInSprite(j,i) then // Check if piece is inside sprite.
         begin
         WritePiece(piecetable[j*4],piecetable[(j*4)+1],piecetable[(j*4)+2],piecetable[(j*4)+3]); // Write piece to file.
+        spritesizes[i] := spritesizes[i]+piecesize[piecetable[(j*4)+3]]; // Track total size of sprite in tiles.
         end;
     if fs > 0 then SaveFile(outfolder+spritenames[i]+'.bin'); // Save sprite file if it contained pieces.
     end;
@@ -233,6 +236,7 @@ begin
     end;
   for i := 0 to spritecount-1 do
     begin
+    if spritesizes[i] = 0 then continue; // Don't list blank sprites.
     s := ReplaceStr(gfxline,'{name}',spritenames[i]);
     s := ReplaceStr(s,'{file}',outfolder+spritenames[i]+'.bin');
     s := ReplaceStr(s,'{filenopath}',spritenames[i]+'.bin');
