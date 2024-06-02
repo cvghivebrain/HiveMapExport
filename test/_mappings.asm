@@ -90,178 +90,570 @@ mappings:
 		ptr frame_Run44
 
 frame_Blank:
-		even
+		spritemap
+		endsprite
+
 frame_Walk26:
-		even
+		spritemap
+		piece -17, -17, 4x3
+		piece -6, 7, 3x2
+		piece 15, -1, 1x1
+		endsprite
+
 frame_Walk36:
-		even
+		spritemap
+		piece -17, -12, 1x3
+		piece -9, -14, 4x4
+		endsprite
+
 frame_Stand:
-		even
+		spritemap
+		piece -16, -19, 3x4
+		piece 8, -7, 1x1
+		piece -9, 13, 3x1
+		endsprite
+
 frame_Wait1:
-		even
+		spritemap
+		piece -15, -18, 3x4
+		piece -8, 14, 3x1
+		endsprite
+
 frame_Wait2:
-		even
+		spritemap
+		piece -15, -18, 3x4
+		piece -8, 14, 3x1
+		endsprite
+
 frame_Wait3:
-		even
+		spritemap
+		piece -15, -18, 3x4
+		piece -8, 14, 3x1
+		endsprite
+
 frame_LookUp:
-		even
+		spritemap
+		piece -16, -18, 3x4
+		piece -8, 14, 3x1
+		endsprite
+
 frame_Walk11:
-		even
+		spritemap
+		piece -12, -19, 3x1
+		piece -17, -11, 4x3
+		piece -17, 13, 1x1
+		piece 10, 2, 2x2
+		endsprite
+
 frame_Walk12:
-		even
+		spritemap
+		piece -12, -18, 3x1
+		piece -12, -10, 4x1
+		piece -12, -2, 3x3
+		piece 12, 11, 1x1
+		endsprite
+
 frame_Walk13:
-		even
+		spritemap
+		piece -13, -17, 3x4
+		piece -10, 15, 2x1
+		endsprite
+
 frame_Walk14:
-		even
+		spritemap
+		piece -12, -19, 3x1
+		piece -12, -11, 4x4
+		piece -20, 0, 1x3
+		endsprite
+
 frame_Walk15:
-		even
+		spritemap
+		piece -13, -18, 3x4
+		piece -21, 0, 1x2
+		piece -3, 14, 2x1
+		endsprite
+
 frame_Walk43:
-		even
+		spritemap
+		piece -19, -9, 3x3
+		piece 2, -19, 2x3
+		piece 5, 5, 1x1
+		endsprite
+
 frame_Walk42:
-		even
+		spritemap
+		piece -18, -8, 3x3
+		piece 6, -10, 2x3
+		piece -5, -23, 2x2
+		piece -8, 16, 1x1
+		endsprite
+
 frame_Walk41:
-		even
+		spritemap
+		piece -19, -11, 3x4
+		piece 5, -5, 2x2
+		piece 21, -5, 1x1
+		piece -13, -19, 2x1
+		endsprite
+
 frame_Walk35:
-		even
+		spritemap
+		piece -18, -12, 2x3
+		piece -2, -11, 2x3
+		piece 8, 13, 1x1
+		piece 14, -10, 1x2
+		endsprite
+
 frame_Walk34:
-		even
+		spritemap
+		piece -19, -13, 1x3
+		piece -11, -13, 4x4
+		piece 2, -20, 2x1
+		endsprite
+
 frame_Walk33:
-		even
+		spritemap
+		piece -17, -12, 4x3
+		piece 15, -3, 1x2
+		endsprite
+
 frame_Walk32:
-		even
+		spritemap
+		piece -18, -14, 4x4
+		piece 11, -19, 2x2
+		piece 14, 2, 1x1
+		endsprite
+
 frame_Walk31:
-		even
+		spritemap
+		piece -19, -14, 4x4
+		piece 2, -20, 2x2
+		piece 13, 9, 1x1
+		endsprite
+
 frame_Walk25:
-		even
+		spritemap
+		piece -16, -20, 3x2
+		piece -12, -4, 4x2
+		piece -3, 12, 1x1
+		piece 12, 12, 1x1
+		endsprite
+
 frame_Run13:
-		even
+		spritemap
+		piece -12, -15, 3x2
+		piece -18, 0, 4x3
+		endsprite
+
 frame_Roll3:
-		even
+		spritemap
+		piece -16, -16, 4x4
+		endsprite
+
 frame_Spring:
-		even
+		spritemap
+		piece -16, -22, 3x4
+		piece -7, 10, 1x2
+		endsprite
+
 frame_Shrink3:
-		even
+		spritemap
+		piece -11, -14, 3x4
+		endsprite
+
 frame_Shrink4:
-		even
+		spritemap
+		piece -7, -9, 2x3
+		endsprite
+
 frame_Shrink5:
-		even
+		spritemap
+		piece -4, -5, 1x2
+		endsprite
+
 frame_Float5:
-		even
+		spritemap
+		piece -28, -12, 4x3
+		piece 4, -3, 2x2
+		endsprite
+
 frame_Float6:
-		even
+		spritemap
+		piece -12, -12, 4x3
+		piece 20, -7, 1x1
+		endsprite
+
 frame_Injury:
-		even
+		spritemap
+		piece -20, -12, 4x4
+		piece 12, -6, 1x3
+		endsprite
+
 frame_GetAir:
-		even
+		spritemap
+		piece -18, -18, 4x4
+		piece -15, 14, 4x1
+		piece 14, 4, 1x1
+		endsprite
+
 frame_WaterSlide:
-		even
+		spritemap
+		piece -20, -12, 4x4
+		piece 12, -8, 1x3
+		endsprite
+
 frame_BubStand:
-		even
+		spritemap
+		piece -14, -21, 3x4
+		piece -8, 11, 2x2
+		endsprite
+
 frame_Surf:
-		even
+		spritemap
+		piece -16, -19, 3x2
+		piece -15, -3, 4x3
+		endsprite
+
 frame_Push4:
-		even
+		spritemap
+		piece -11, -17, 3x4
+		piece -13, 11, 2x2
+		endsprite
+
 frame_Push3:
-		even
+		spritemap
+		piece -11, -16, 3x4
+		piece -17, 11, 3x2
+		endsprite
+
 frame_Push2:
-		even
+		spritemap
+		piece -11, -17, 3x4
+		piece -13, 11, 2x2
+		endsprite
+
 frame_Push1:
-		even
+		spritemap
+		piece -11, -16, 3x4
+		piece -18, 10, 4x2
+		endsprite
+
 frame_Leap2:
-		even
+		spritemap
+		piece -16, -24, 4x4
+		piece 16, -23, 1x1
+		piece -7, 8, 3x2
+		endsprite
+
 frame_Leap1:
-		even
+		spritemap
+		piece -16, -24, 4x4
+		piece -7, 8, 3x2
+		piece 16, -10, 1x1
+		endsprite
+
 frame_Hang2:
-		even
+		spritemap
+		piece -24, -10, 4x3
+		piece 8, -3, 2x3
+		endsprite
+
 frame_Hang1:
-		even
+		spritemap
+		piece -24, -10, 4x3
+		piece 8, -4, 2x3
+		endsprite
+
 frame_Roll4:
-		even
+		spritemap
+		piece -16, -16, 4x4
+		endsprite
+
 frame_Run14:
-		even
+		spritemap
+		piece -12, -16, 3x2
+		piece -19, 0, 4x3
+		endsprite
+
 frame_Run21:
-		even
+		spritemap
+		piece -16, -17, 4x3
+		piece -5, 7, 3x2
+		piece 16, -2, 1x2
+		endsprite
+
 frame_Roll5:
-		even
+		spritemap
+		piece -16, -16, 4x4
+		endsprite
+
 frame_Warp1:
-		even
+		spritemap
+		piece -20, -11, 4x3
+		piece 12, -11, 1x3
+		endsprite
+
 frame_Run22:
-		even
+		spritemap
+		piece -15, -18, 4x3
+		piece -5, 6, 3x2
+		piece 17, -1, 1x2
+		endsprite
+
 frame_Warp2:
-		even
+		spritemap
+		piece -16, -16, 4x4
+		endsprite
+
 frame_Run23:
-		even
+		spritemap
+		piece -16, -17, 4x3
+		piece -5, 7, 3x2
+		piece 16, -2, 1x2
+		endsprite
+
 frame_Run24:
-		even
+		spritemap
+		piece -15, -18, 4x3
+		piece -5, 6, 3x2
+		piece 17, -1, 1x2
+		endsprite
+
 frame_Warp3:
-		even
+		spritemap
+		piece -11, -20, 3x4
+		piece -11, 12, 3x1
+		endsprite
+
 frame_Warp4:
-		even
+		spritemap
+		piece -16, -16, 4x4
+		endsprite
+
 frame_Run31:
-		even
+		spritemap
+		piece -15, -12, 2x3
+		piece 0, -11, 3x4
+		endsprite
+
 frame_Run32:
-		even
+		spritemap
+		piece -16, -12, 2x3
+		piece 0, -10, 3x4
+		endsprite
+
 frame_Stop1:
-		even
+		spritemap
+		piece -14, -16, 3x4
+		piece 10, -2, 1x3
+		piece 2, 16, 1x1
+		endsprite
+
 frame_Stop2:
-		even
+		spritemap
+		piece -13, -16, 3x4
+		piece 11, -2, 1x3
+		piece 3, 16, 1x1
+		piece -21, 4, 1x1
+		endsprite
+
 frame_Run33:
-		even
+		spritemap
+		piece -15, -12, 2x3
+		piece 0, -10, 3x4
+		endsprite
+
 frame_Run34:
-		even
+		spritemap
+		piece -16, -12, 2x3
+		piece 0, -10, 3x4
+		endsprite
+
 frame_Duck:
-		even
+		spritemap
+		piece -15, -6, 4x4
+		endsprite
+
 frame_Balance1:
-		even
+		spritemap
+		piece -32, -5, 4x3
+		piece -21, -20, 3x2
+		piece 0, 2, 1x1
+		piece -11, 19, 1x1
+		endsprite
+
 frame_Run41:
-		even
+		spritemap
+		piece -17, -14, 3x4
+		piece -2, -21, 2x1
+		piece 7, -17, 2x3
+		endsprite
+
 frame_Burnt:
-		even
+		spritemap
+		piece -14, -24, 4x4
+		piece -8, 8, 3x2
+		piece 18, -19, 1x1
+		endsprite
+
 frame_Balance2:
-		even
+		spritemap
+		piece -30, -19, 4x4
+		piece 2, -11, 1x1
+		piece -16, 13, 2x1
+		endsprite
+
 frame_Run42:
-		even
+		spritemap
+		piece -18, -12, 3x4
+		piece -2, -21, 3x1
+		piece 6, -13, 2x3
+		endsprite
+
 frame_Walk44:
-		even
+		spritemap
+		piece -21, -11, 2x4
+		piece -5, -11, 3x3
+		piece 19, -6, 1x1
+		piece -10, -19, 2x1
+		endsprite
+
 frame_Walk16:
-		even
+		spritemap
+		piece -13, -17, 4x2
+		piece -12, -1, 3x3
+		endsprite
+
 frame_Walk21:
-		even
+		spritemap
+		piece -19, -19, 4x3
+		piece -9, 5, 2x2
+		piece 13, -13, 1x2
+		piece -3, 21, 1x1
+		endsprite
+
 frame_Walk22:
-		even
+		spritemap
+		piece -18, -18, 4x3
+		piece 13, -5, 2x2
+		piece -7, 6, 2x1
+		piece -1, 14, 2x1
+		endsprite
+
 frame_Walk23:
-		even
+		spritemap
+		piece -15, -19, 3x2
+		piece -11, -3, 4x2
+		piece 1, 13, 2x1
+		endsprite
+
 frame_Walk24:
-		even
+		spritemap
+		piece -17, -21, 3x1
+		piece -17, -13, 4x3
+		piece -11, 11, 2x2
+		piece 15, -11, 1x2
+		endsprite
+
 frame_Run12:
-		even
+		spritemap
+		piece -12, -16, 3x2
+		piece -19, 0, 4x3
+		endsprite
+
 frame_Roll2:
-		even
+		spritemap
+		piece -16, -16, 4x4
+		endsprite
+
 frame_Float4:
-		even
+		spritemap
+		piece -16, -11, 4x3
+		piece 16, -10, 2x3
+		endsprite
+
 frame_Shrink2:
-		even
+		spritemap
+		piece -14, -18, 3x1
+		piece -14, -10, 4x4
+		endsprite
+
 frame_Shrink1:
-		even
+		spritemap
+		piece -16, -20, 4x4
+		piece -10, 12, 3x1
+		endsprite
+
 frame_Death:
-		even
+		spritemap
+		piece -14, -24, 4x4
+		piece -9, 8, 4x1
+		piece 18, -18, 1x1
+		piece -9, 16, 1x1
+		endsprite
+
 frame_Drown:
-		even
+		spritemap
+		piece -14, -21, 4x4
+		piece -9, 11, 4x1
+		piece 18, -18, 1x1
+		endsprite
+
 frame_Float1:
-		even
+		spritemap
+		piece -17, -12, 4x3
+		piece 15, -12, 2x3
+		endsprite
+
 frame_Run43:
-		even
+		spritemap
+		piece -17, -10, 2x4
+		piece -3, -20, 2x4
+		piece 13, -18, 2x3
+		endsprite
+
 frame_Walk45:
-		even
+		spritemap
+		piece -20, -8, 2x3
+		piece -4, -12, 2x3
+		piece 12, -5, 1x1
+		piece -2, -19, 2x1
+		endsprite
+
 frame_Walk46:
-		even
+		spritemap
+		piece -17, -10, 1x3
+		piece -9, -10, 1x4
+		piece -2, -21, 3x3
+		piece -1, 3, 2x2
+		endsprite
+
 frame_Run11:
-		even
+		spritemap
+		piece -12, -15, 3x2
+		piece -19, 0, 4x3
+		endsprite
+
 frame_Roll1:
-		even
+		spritemap
+		piece -16, -16, 4x4
+		endsprite
+
 frame_Float3:
-		even
+		spritemap
+		piece -27, -12, 4x3
+		piece 5, -3, 1x2
+		endsprite
+
 frame_Float2:
-		even
+		spritemap
+		piece -22, -12, 4x3
+		piece 10, -7, 2x2
+		endsprite
+
 frame_Run44:
-		even
+		spritemap
+		piece -18, -12, 2x4
+		piece -2, -21, 3x4
+		endsprite
+

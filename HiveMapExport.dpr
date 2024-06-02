@@ -20,7 +20,7 @@ var
   PNG: TPNGImage;
   palarray: array[0..63] of TColor;
   spritenames: array of string;
-  spritetable, piecetable, spritesizes: array of integer;
+  spritetable, piecetable, spritesizes, spritepieces: array of integer;
 
 const
   piecewidth: array[0..15] of integer = (8,8,8,8,16,16,16,16,24,24,24,24,32,32,32,32);
@@ -190,6 +190,7 @@ begin
     exit;
     end;
   SetLength(spritesizes,spritecount);
+  SetLength(spritepieces,spritecount);
 
   { Read each sprite. }
 
@@ -201,8 +202,9 @@ begin
         begin
         WritePiece(piecetable[j*4],piecetable[(j*4)+1],piecetable[(j*4)+2],piecetable[(j*4)+3]); // Write piece to file.
         spritesizes[i] := spritesizes[i]+piecesize[piecetable[(j*4)+3]]; // Track total size of sprite in tiles.
+        spritepieces[i] := spritepieces[i]+1; // Track piece count per sprite.
         end;
-    if fs > 0 then SaveFile(outfolder+spritenames[i]+'.bin'); // Save sprite file if it contained pieces.
+    if spritepieces[i] > 0 then SaveFile(outfolder+spritenames[i]+'.bin'); // Save sprite file if it contained pieces.
     end;
 
   { Open main mappings file. }
@@ -219,10 +221,25 @@ begin
     WriteASM(mapasmfile,s);
     end;
   WriteASM(mapasmfile,mapindexfoot);
+
   for i := 0 to spritecount-1 do
     begin
+    // Header
     s := ReplaceStr(maphead,'{name}',spritenames[i]);
+    s := ReplaceStr(s,'{piececount}',IntToStr(spritepieces[i]));
     WriteASM(mapasmfile,s);
+    // Content
+    for j := 0 to piececount-1 do
+      if PieceInSprite(j,i) then // Check if piece is inside sprite.
+        begin
+        s := ReplaceStr(mapline,'{xpos}',IntToStr(piecetable[j*4]-spritetable[i*4]));
+        s := ReplaceStr(s,'{ypos}',IntToStr(piecetable[(j*4)+1]-spritetable[(i*4)+1]));
+        s := ReplaceStr(s,'{size}',IntToStr(piecetable[(j*4)+3]));
+        s := ReplaceStr(s,'{width}',IntToStr(piecewidth[piecetable[(j*4)+3]] div 8));
+        s := ReplaceStr(s,'{height}',IntToStr(pieceheight[piecetable[(j*4)+3]] div 8));
+        WriteASM(mapasmfile,s);
+        end;
+    // Footer
     s := ReplaceStr(mapfoot,'{name}',spritenames[i]);
     WriteASM(mapasmfile,s);
     end;
