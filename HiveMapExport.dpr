@@ -13,14 +13,14 @@ uses
   ExplodeFunc in 'ExplodeFunc.pas';
 
 var
-  i, j, spritecount, piececount: integer;
+  i, j, tilecount, spritecount, piececount: integer;
   outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline,
   mapindexhead, mapindexfoot, mapindexline, maphead, mapfoot, mapline: string;
   inifile, mapasmfile, dplcasmfile, gfxasmfile: textfile;
   PNG: TPNGImage;
   palarray: array[0..63] of TColor;
   spritenames: array of string;
-  spritetable, piecetable, spritesizes, spritepieces: array of integer;
+  spritetable, piecetable, spritesizes, spritepieces, pieceglobal, piecelocal: array of integer;
 
 const
   piecewidth: array[0..15] of integer = (8,8,8,8,16,16,16,16,24,24,24,24,32,32,32,32);
@@ -191,6 +191,9 @@ begin
     end;
   SetLength(spritesizes,spritecount);
   SetLength(spritepieces,spritecount);
+  SetLength(pieceglobal,piececount);
+  SetLength(piecelocal,piececount);
+  tilecount := 0;
 
   { Read each sprite. }
 
@@ -201,11 +204,15 @@ begin
       if PieceInSprite(j,i) then // Check if piece is inside sprite.
         begin
         WritePiece(piecetable[j*4],piecetable[(j*4)+1],piecetable[(j*4)+2],piecetable[(j*4)+3]); // Write piece to file.
+        piecelocal[j] := spritesizes[i];
+        pieceglobal[j] := tilecount;
         spritesizes[i] := spritesizes[i]+piecesize[piecetable[(j*4)+3]]; // Track total size of sprite in tiles.
+        tilecount := tilecount+piecesize[piecetable[(j*4)+3]]; // Track size of all tiles.
         spritepieces[i] := spritepieces[i]+1; // Track piece count per sprite.
         end;
     if spritepieces[i] > 0 then SaveFile(outfolder+spritenames[i]+'.bin'); // Save sprite file if it contained pieces.
     end;
+  WriteLn(IntToStr(tilecount)+' tiles found, totalling '+IntToStr(tilecount*32)+' bytes.');
 
   { Open main mappings file. }
 
@@ -237,6 +244,8 @@ begin
         s := ReplaceStr(s,'{size}',IntToStr(piecetable[(j*4)+3]));
         s := ReplaceStr(s,'{width}',IntToStr(piecewidth[piecetable[(j*4)+3]] div 8));
         s := ReplaceStr(s,'{height}',IntToStr(pieceheight[piecetable[(j*4)+3]] div 8));
+        s := ReplaceStr(s,'{offsetlocal}',IntToStr(piecelocal[j]));
+        s := ReplaceStr(s,'{offsetglobal}',IntToStr(pieceglobal[j]));
         WriteASM(mapasmfile,s);
         end;
     // Footer
