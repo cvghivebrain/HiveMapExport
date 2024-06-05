@@ -21,6 +21,7 @@ var
   palarray: array[0..63] of TColor;
   spritenames: array of string;
   spritetable, piecetable, spritesizes, spritepieces, pieceglobal, piecelocal: array of integer;
+  palstr: array[0..3] of string;
 
 const
   piecewidth: array[0..15] of integer = (8,8,8,8,16,16,16,16,24,24,24,24,32,32,32,32);
@@ -178,7 +179,11 @@ begin
     else if AnsiPos('mapindexline=',s) = 1 then mapindexline := Explode(s,'mapindexline=',1)
     else if AnsiPos('maphead=',s) = 1 then maphead := Explode(s,'maphead=',1)
     else if AnsiPos('mapfoot=',s) = 1 then mapfoot := Explode(s,'mapfoot=',1)
-    else if AnsiPos('mapline=',s) = 1 then mapline := Explode(s,'mapline=',1);
+    else if AnsiPos('mapline=',s) = 1 then mapline := Explode(s,'mapline=',1)
+    else if AnsiPos('pal1str=',s) = 1 then palstr[0] := Explode(s,'pal1str=',1)
+    else if AnsiPos('pal2str=',s) = 1 then palstr[1] := Explode(s,'pal2str=',1)
+    else if AnsiPos('pal3str=',s) = 1 then palstr[2] := Explode(s,'pal3str=',1)
+    else if AnsiPos('pal4str=',s) = 1 then palstr[3] := Explode(s,'pal4str=',1);
     if mapasm = '' then mapasm := outfolder+'_mappings.asm'; // Default mappings file.
     end;
   WriteLn(IntToStr(spritecount)+' sprites found.');
@@ -246,6 +251,7 @@ begin
         s := ReplaceStr(s,'{height}',IntToStr(pieceheight[piecetable[(j*4)+3]] div 8));
         s := ReplaceStr(s,'{offsetlocal}',IntToStr(piecelocal[j]));
         s := ReplaceStr(s,'{offsetglobal}',IntToStr(pieceglobal[j]));
+        s := ReplaceStr(s,'{pal}',palstr[piecetable[(j*4)+2] and 3]);
         WriteASM(mapasmfile,s);
         end;
     // Footer
