@@ -14,7 +14,7 @@ uses
 
 var
   i, j, tilecount, spritecount, piececount: integer;
-  outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline,
+  outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline, gfxfilename,
   mapindexhead, mapindexfoot, mapindexline, maphead, mapfoot, mapline: string;
   inifile, mapasmfile, dplcasmfile, gfxasmfile: textfile;
   PNG: TPNGImage;
@@ -173,6 +173,7 @@ begin
     else if AnsiPos('mapasmfile=',s) = 1 then mapasm := outfolder+Explode(s,'mapasmfile=',1)
     else if AnsiPos('dplcasmfile=',s) = 1 then dplcasm := outfolder+Explode(s,'dplcasmfile=',1)
     else if AnsiPos('gfxasmfile=',s) = 1 then gfxasm := outfolder+Explode(s,'gfxasmfile=',1)
+    else if AnsiPos('gfxfile=',s) = 1 then gfxfilename := Explode(s,'gfxfile=',1)
     else if AnsiPos('gfxline=',s) = 1 then gfxline := Explode(s,'gfxline=',1)
     else if AnsiPos('mapindexhead=',s) = 1 then mapindexhead := Explode(s,'mapindexhead=',1)
     else if AnsiPos('mapindexfoot=',s) = 1 then mapindexfoot := Explode(s,'mapindexfoot=',1)
@@ -215,7 +216,8 @@ begin
         tilecount := tilecount+piecesize[piecetable[(j*4)+3]]; // Track size of all tiles.
         spritepieces[i] := spritepieces[i]+1; // Track piece count per sprite.
         end;
-    if spritepieces[i] > 0 then SaveFile(outfolder+spritenames[i]+'.bin'); // Save sprite file if it contained pieces.
+    s := ReplaceStr(gfxfilename,'{name}',spritenames[i]);
+    if spritepieces[i] > 0 then SaveFile(outfolder+s); // Save sprite file if it contained pieces.
     end;
   WriteLn(IntToStr(tilecount)+' tiles found, totalling '+IntToStr(tilecount*32)+' bytes.');
 
@@ -269,9 +271,9 @@ begin
   for i := 0 to spritecount-1 do
     begin
     if spritesizes[i] = 0 then continue; // Don't list blank sprites.
-    s := ReplaceStr(gfxline,'{name}',spritenames[i]);
-    s := ReplaceStr(s,'{file}',outfolder+spritenames[i]+'.bin');
-    s := ReplaceStr(s,'{filenopath}',spritenames[i]+'.bin');
+    s := ReplaceStr(gfxline,'{file}',outfolder+gfxfilename);
+    s := ReplaceStr(s,'{filenopath}',gfxfilename);
+    s := ReplaceStr(s,'{name}',spritenames[i]);
     if gfxasm <> '' then WriteASM(gfxasmfile,s)
     else WriteASM(mapasmfile,s);
     end;
