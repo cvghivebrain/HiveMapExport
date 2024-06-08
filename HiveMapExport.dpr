@@ -22,6 +22,7 @@ var
   spritenames: array of string;
   spritetable, piecetable, spritesizes, spritepieces, pieceglobal, piecelocal: array of integer;
   palstr: array[0..3] of string;
+  splitgfxfile: boolean;
 
 const
   piecewidth: array[0..15] of integer = (8,8,8,8,16,16,16,16,24,24,24,24,32,32,32,32);
@@ -126,6 +127,7 @@ begin
 
   spritecount := 0;
   piececount := 0;
+  splitgfxfile := false;
   AssignFile(inifile,ParamStr(1)); // Open ini file.
   Reset(inifile);
   PNG := TPNGImage.Create; // Initialise PNG.
@@ -189,6 +191,7 @@ begin
     end;
   WriteLn(IntToStr(spritecount)+' sprites found.');
   WriteLn(IntToStr(piececount)+' pieces found.');
+  if AnsiPos('{',gfxfilename) <> 0 then splitgfxfile := true;
   CloseFile(inifile);
   if not Assigned(PNG) then
     begin
@@ -201,11 +204,12 @@ begin
   SetLength(piecelocal,piececount);
   tilecount := 0;
 
-  { Read each sprite. }
+  { Read each sprite and create gfx files. }
 
+  if not splitgfxfile then NewFile(0); // Start with blank file (single file).
   for i := 0 to spritecount-1 do
     begin
-    NewFile(0); // Start with blank file.
+    if splitgfxfile then NewFile(0); // Start with blank file (different file per sprite).
     for j := 0 to piececount-1 do
       if PieceInSprite(j,i) then // Check if piece is inside sprite.
         begin
@@ -217,8 +221,9 @@ begin
         spritepieces[i] := spritepieces[i]+1; // Track piece count per sprite.
         end;
     s := ReplaceStr(gfxfilename,'{name}',spritenames[i]);
-    if spritepieces[i] > 0 then SaveFile(outfolder+s); // Save sprite file if it contained pieces.
+    if splitgfxfile and (spritepieces[i] > 0) then SaveFile(outfolder+s); // Save sprite file if it contained pieces.
     end;
+  if not splitgfxfile then SaveFile(outfolder+gfxfilename);
   WriteLn(IntToStr(tilecount)+' tiles found, totalling '+IntToStr(tilecount*32)+' bytes.');
 
   { Open main mappings file. }
@@ -276,6 +281,7 @@ begin
     s := ReplaceStr(s,'{name}',spritenames[i]);
     if gfxasm <> '' then WriteASM(gfxasmfile,s)
     else WriteASM(mapasmfile,s);
+    if not splitgfxfile then break; // Don't keep looping for single gfx file.
     end;
 
   CloseFile(mapasmfile);
