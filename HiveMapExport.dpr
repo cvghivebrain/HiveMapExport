@@ -15,7 +15,8 @@ uses
 var
   i, j, tilecount, spritecount, piececount: integer;
   outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline, gfxfilename,
-  mapindexhead, mapindexfoot, mapindexline, maphead, mapfoot, mapline: string;
+  mapindexhead, mapindexfoot, mapindexline, maphead, mapfoot, mapline,
+  dplcindexhead, dplcindexfoot, dplcindexline, dplchead, dplcfoot, dplcline: string;
   inifile, mapasmfile, dplcasmfile, gfxasmfile: textfile;
   PNG: TPNGImage;
   palarray: array[0..63] of TColor;
@@ -186,7 +187,13 @@ begin
     else if AnsiPos('pal1str=',s) = 1 then palstr[0] := Explode(s,'pal1str=',1)
     else if AnsiPos('pal2str=',s) = 1 then palstr[1] := Explode(s,'pal2str=',1)
     else if AnsiPos('pal3str=',s) = 1 then palstr[2] := Explode(s,'pal3str=',1)
-    else if AnsiPos('pal4str=',s) = 1 then palstr[3] := Explode(s,'pal4str=',1);
+    else if AnsiPos('pal4str=',s) = 1 then palstr[3] := Explode(s,'pal4str=',1)
+    else if AnsiPos('dplcindexhead=',s) = 1 then dplcindexhead := Explode(s,'dplcindexhead=',1)
+    else if AnsiPos('dplcindexfoot=',s) = 1 then dplcindexfoot := Explode(s,'dplcindexfoot=',1)
+    else if AnsiPos('dplcindexline=',s) = 1 then dplcindexline := Explode(s,'dplcindexline=',1)
+    else if AnsiPos('dplchead=',s) = 1 then dplchead := Explode(s,'dplchead=',1)
+    else if AnsiPos('dplcfoot=',s) = 1 then dplcfoot := Explode(s,'dplcfoot=',1)
+    else if AnsiPos('dplcline=',s) = 1 then dplcline := Explode(s,'dplcline=',1);
     if mapasm = '' then mapasm := outfolder+'_mappings.asm'; // Default mappings file.
     end;
   WriteLn(IntToStr(spritecount)+' sprites found.');
@@ -266,6 +273,24 @@ begin
     WriteASM(mapasmfile,s);
     end;
 
+  { Write DPLC file. }
+
+  if dplcasm <> '' then
+    begin
+    AssignFile(dplcasmfile,dplcasm); // Open asm file.
+    ReWrite(dplcasmfile); // Make file editable.
+    WriteASM(dplcasmfile,dplcindexhead);
+    end
+  else WriteASM(mapasmfile,dplcindexhead);
+  for i := 0 to spritecount-1 do
+    begin
+    s := ReplaceStr(dplcindexline,'{name}',spritenames[i]);
+    if dplcasm <> '' then WriteASM(dplcasmfile,s)
+    else WriteASM(mapasmfile,s);
+    end;
+  if dplcasm <> '' then WriteASM(dplcasmfile,dplcindexfoot)
+  else WriteASM(mapasmfile,dplcindexfoot);
+
   { Write gfx file list. }
 
   if gfxasm <> '' then
@@ -281,7 +306,7 @@ begin
     s := ReplaceStr(s,'{name}',spritenames[i]);
     if gfxasm <> '' then WriteASM(gfxasmfile,s)
     else WriteASM(mapasmfile,s);
-    if not splitgfxfile then break; // Don't keep looping for single gfx file.
+    if not splitgfxfile then break; // Only run once for single gfx file.
     end;
 
   CloseFile(mapasmfile);
