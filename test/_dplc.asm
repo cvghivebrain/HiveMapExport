@@ -87,4 +87,4 @@ sonicdplcindex:
 		ptr dplc_Float3
 		ptr dplc_Float2
 		ptr dplc_Run44
-
+end

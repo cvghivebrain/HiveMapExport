@@ -18,6 +18,7 @@ var
   mapindexhead, mapindexfoot, mapindexline, maphead, mapfoot, mapline,
   dplcindexhead, dplcindexfoot, dplcindexline, dplchead, dplcfoot, dplcline: string;
   inifile, mapasmfile, dplcasmfile, gfxasmfile: textfile;
+  currfile: ^textfile;
   PNG: TPNGImage;
   palarray: array[0..63] of TColor;
   spritenames: array of string;
@@ -237,23 +238,24 @@ begin
 
   AssignFile(mapasmfile,mapasm); // Open asm file.
   ReWrite(mapasmfile); // Make file editable.
+  currfile := @mapasmfile;
 
   { Write mappings file. }
 
-  WriteASM(mapasmfile,mapindexhead);
+  WriteASM(currfile^,mapindexhead);
   for i := 0 to spritecount-1 do
     begin
     s := ReplaceStr(mapindexline,'{name}',spritenames[i]);
-    WriteASM(mapasmfile,s);
+    WriteASM(currfile^,s);
     end;
-  WriteASM(mapasmfile,mapindexfoot);
+  WriteASM(currfile^,mapindexfoot);
 
   for i := 0 to spritecount-1 do
     begin
     // Header
     s := ReplaceStr(maphead,'{name}',spritenames[i]);
     s := ReplaceStr(s,'{piececount}',IntToStr(spritepieces[i]));
-    WriteASM(mapasmfile,s);
+    WriteASM(currfile^,s);
     // Content
     for j := 0 to piececount-1 do
       if PieceInSprite(j,i) then // Check if piece is inside sprite.
@@ -266,11 +268,11 @@ begin
         s := ReplaceStr(s,'{offsetlocal}',IntToStr(piecelocal[j]));
         s := ReplaceStr(s,'{offsetglobal}',IntToStr(pieceglobal[j]));
         s := ReplaceStr(s,'{pal}',palstr[piecetable[(j*4)+2] and 3]);
-        WriteASM(mapasmfile,s);
+        WriteASM(currfile^,s);
         end;
     // Footer
     s := ReplaceStr(mapfoot,'{name}',spritenames[i]);
-    WriteASM(mapasmfile,s);
+    WriteASM(currfile^,s);
     end;
 
   { Write DPLC file. }
@@ -279,17 +281,16 @@ begin
     begin
     AssignFile(dplcasmfile,dplcasm); // Open asm file.
     ReWrite(dplcasmfile); // Make file editable.
-    WriteASM(dplcasmfile,dplcindexhead);
-    end
-  else WriteASM(mapasmfile,dplcindexhead);
+    currfile := @dplcasmfile; // Switch to DPLC asm file.
+    end;
+  WriteASM(currfile^,dplcindexhead);
   for i := 0 to spritecount-1 do
     begin
     s := ReplaceStr(dplcindexline,'{name}',spritenames[i]);
-    if dplcasm <> '' then WriteASM(dplcasmfile,s)
-    else WriteASM(mapasmfile,s);
+    WriteASM(currfile^,s);
+    WriteLn(s);
     end;
-  if dplcasm <> '' then WriteASM(dplcasmfile,dplcindexfoot)
-  else WriteASM(mapasmfile,dplcindexfoot);
+  WriteASM(currfile^,dplcindexfoot);
 
   { Write gfx file list. }
 
@@ -297,6 +298,7 @@ begin
     begin
     AssignFile(gfxasmfile,gfxasm); // Open asm file.
     ReWrite(gfxasmfile); // Make file editable.
+    currfile := @gfxasmfile; // Switch to gfx asm file.
     end;
   for i := 0 to spritecount-1 do
     begin
@@ -304,8 +306,7 @@ begin
     s := ReplaceStr(gfxline,'{file}',outfolder+gfxfilename);
     s := ReplaceStr(s,'{filenopath}',gfxfilename);
     s := ReplaceStr(s,'{name}',spritenames[i]);
-    if gfxasm <> '' then WriteASM(gfxasmfile,s)
-    else WriteASM(mapasmfile,s);
+    WriteASM(currfile^,s);
     if not splitgfxfile then break; // Only run once for single gfx file.
     end;
 
