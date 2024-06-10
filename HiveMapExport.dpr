@@ -242,6 +242,7 @@ begin
 
   { Write mappings file. }
 
+  // Index
   WriteASM(currfile^,mapindexhead);
   for i := 0 to spritecount-1 do
     begin
@@ -283,14 +284,38 @@ begin
     ReWrite(dplcasmfile); // Make file editable.
     currfile := @dplcasmfile; // Switch to DPLC asm file.
     end;
+  // Index
   WriteASM(currfile^,dplcindexhead);
   for i := 0 to spritecount-1 do
     begin
     s := ReplaceStr(dplcindexline,'{name}',spritenames[i]);
     WriteASM(currfile^,s);
-    WriteLn(s);
     end;
   WriteASM(currfile^,dplcindexfoot);
+
+  for i := 0 to spritecount-1 do
+    begin
+    // Header
+    s := ReplaceStr(dplchead,'{name}',spritenames[i]);
+    s := ReplaceStr(s,'{piececount}',IntToStr(spritepieces[i]));
+    s := ReplaceStr(s,'{spritesize}',IntToStr(spritesizes[i]));
+    WriteASM(currfile^,s);
+    // Content
+    for j := 0 to piececount-1 do
+      if PieceInSprite(j,i) then // Check if piece is inside sprite.
+        begin
+        s := ReplaceStr(dplcline,'{name}',spritenames[i]);
+        s := ReplaceStr(s,'{size}',IntToStr(piecesize[piecetable[(j*4)+3]]));
+        s := ReplaceStr(s,'{size0}',IntToStr(piecesize[piecetable[(j*4)+3]]-1));
+        s := ReplaceStr(s,'{spritesize}',IntToStr(spritesizes[i]));
+        s := ReplaceStr(s,'{offsetlocal}',IntToStr(piecelocal[j]));
+        s := ReplaceStr(s,'{offsetglobal}',IntToStr(pieceglobal[j]));
+        WriteASM(currfile^,s);
+        end;
+    // Footer
+    s := ReplaceStr(dplcfoot,'{name}',spritenames[i]);
+    WriteASM(currfile^,s);
+    end;
 
   { Write gfx file list. }
 
