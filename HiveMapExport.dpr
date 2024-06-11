@@ -16,7 +16,7 @@ var
   i, j, tilecount, spritecount, piececount: integer;
   outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline, gfxfilename,
   mapindexhead, mapindexfoot, mapindexline, maphead, mapfoot, mapline,
-  dplcindexhead, dplcindexfoot, dplcindexline, dplchead, dplcfoot, dplcline: string;
+  dplcindexhead, dplcindexfoot, dplcindexline, dplchead, dplcfoot, dplcline, dplcmode: string;
   inifile, mapasmfile, dplcasmfile, gfxasmfile: textfile;
   currfile: ^textfile;
   PNG: TPNGImage;
@@ -98,6 +98,41 @@ procedure WriteASM(var myfile: textfile; s: string);
 begin
   s := ReplaceStr(s,'{n}',#13#10); // Insert linebreaks.
   WriteLn(myfile,s);
+end;
+
+{ Format mappings line. }
+
+function FormatMapLine(str: string; spr, pie: integer): string;
+begin
+  result := ReplaceStr(str,'{xpos}',IntToStr(piecetable[pie*4]-spritetable[spr*4]));
+  result := ReplaceStr(result,'{ypos}',IntToStr(piecetable[(pie*4)+1]-spritetable[(spr*4)+1]));
+  result := ReplaceStr(result,'{size}',IntToStr(piecetable[(pie*4)+3]));
+  result := ReplaceStr(result,'{width}',IntToStr(piecewidth[piecetable[(pie*4)+3]] div 8));
+  result := ReplaceStr(result,'{height}',IntToStr(pieceheight[piecetable[(pie*4)+3]] div 8));
+  result := ReplaceStr(result,'{offsetlocal}',IntToStr(piecelocal[pie]));
+  result := ReplaceStr(result,'{offsetglobal}',IntToStr(pieceglobal[pie]));
+  result := ReplaceStr(result,'{pal}',palstr[piecetable[(pie*4)+2] and 3]);
+end;
+
+{ Format DPLC line. }
+
+function FormatDPLCLine(str: string; spr, pie: integer): string;
+begin
+  result := ReplaceStr(str,'{name}',spritenames[spr]);
+  result := ReplaceStr(result,'{size}',IntToStr(piecesize[piecetable[(pie*4)+3]]));
+  result := ReplaceStr(result,'{size0}',IntToStr(piecesize[piecetable[(pie*4)+3]]-1));
+  result := ReplaceStr(result,'{spritesize}',IntToStr(spritesizes[spr]));
+  result := ReplaceStr(result,'{offsetlocal}',IntToStr(piecelocal[pie]));
+  result := ReplaceStr(result,'{offsetglobal}',IntToStr(pieceglobal[pie]));
+end;
+
+{ Format header. }
+
+function FormatHeader(str: string; spr: integer): string;
+begin
+  result := ReplaceStr(str,'{name}',spritenames[spr]);
+  result := ReplaceStr(result,'{piececount}',IntToStr(spritepieces[spr]));
+  result := ReplaceStr(result,'{spritesize}',IntToStr(spritesizes[spr]));
 end;
 
 begin
@@ -194,7 +229,8 @@ begin
     else if AnsiPos('dplcindexline=',s) = 1 then dplcindexline := Explode(s,'dplcindexline=',1)
     else if AnsiPos('dplchead=',s) = 1 then dplchead := Explode(s,'dplchead=',1)
     else if AnsiPos('dplcfoot=',s) = 1 then dplcfoot := Explode(s,'dplcfoot=',1)
-    else if AnsiPos('dplcline=',s) = 1 then dplcline := Explode(s,'dplcline=',1);
+    else if AnsiPos('dplcline=',s) = 1 then dplcline := Explode(s,'dplcline=',1)
+    else if AnsiPos('dplc=',s) = 1 then dplcmode := Explode(s,'dplc=',1);
     if mapasm = '' then mapasm := outfolder+'_mappings.asm'; // Default mappings file.
     end;
   WriteLn(IntToStr(spritecount)+' sprites found.');
@@ -254,21 +290,13 @@ begin
   for i := 0 to spritecount-1 do
     begin
     // Header
-    s := ReplaceStr(maphead,'{name}',spritenames[i]);
-    s := ReplaceStr(s,'{piececount}',IntToStr(spritepieces[i]));
+    s := FormatHeader(maphead,i);
     WriteASM(currfile^,s);
     // Content
     for j := 0 to piececount-1 do
       if PieceInSprite(j,i) then // Check if piece is inside sprite.
         begin
-        s := ReplaceStr(mapline,'{xpos}',IntToStr(piecetable[j*4]-spritetable[i*4]));
-        s := ReplaceStr(s,'{ypos}',IntToStr(piecetable[(j*4)+1]-spritetable[(i*4)+1]));
-        s := ReplaceStr(s,'{size}',IntToStr(piecetable[(j*4)+3]));
-        s := ReplaceStr(s,'{width}',IntToStr(piecewidth[piecetable[(j*4)+3]] div 8));
-        s := ReplaceStr(s,'{height}',IntToStr(pieceheight[piecetable[(j*4)+3]] div 8));
-        s := ReplaceStr(s,'{offsetlocal}',IntToStr(piecelocal[j]));
-        s := ReplaceStr(s,'{offsetglobal}',IntToStr(pieceglobal[j]));
-        s := ReplaceStr(s,'{pal}',palstr[piecetable[(j*4)+2] and 3]);
+        s := FormatMapLine(mapline,i,j);
         WriteASM(currfile^,s);
         end;
     // Footer
@@ -278,43 +306,39 @@ begin
 
   { Write DPLC file. }
 
-  if dplcasm <> '' then
+  if (dplcmode = 'yes') or (dplcasm <> '') then
     begin
-    AssignFile(dplcasmfile,dplcasm); // Open asm file.
-    ReWrite(dplcasmfile); // Make file editable.
-    currfile := @dplcasmfile; // Switch to DPLC asm file.
-    end;
-  // Index
-  WriteASM(currfile^,dplcindexhead);
-  for i := 0 to spritecount-1 do
-    begin
-    s := ReplaceStr(dplcindexline,'{name}',spritenames[i]);
-    WriteASM(currfile^,s);
-    end;
-  WriteASM(currfile^,dplcindexfoot);
+    if dplcasm <> '' then
+      begin
+      AssignFile(dplcasmfile,dplcasm); // Open asm file.
+      ReWrite(dplcasmfile); // Make file editable.
+      currfile := @dplcasmfile; // Switch to DPLC asm file.
+      end;
+    // Index
+    WriteASM(currfile^,dplcindexhead);
+    for i := 0 to spritecount-1 do
+      begin
+      s := ReplaceStr(dplcindexline,'{name}',spritenames[i]);
+      WriteASM(currfile^,s);
+      end;
+    WriteASM(currfile^,dplcindexfoot);
 
-  for i := 0 to spritecount-1 do
-    begin
-    // Header
-    s := ReplaceStr(dplchead,'{name}',spritenames[i]);
-    s := ReplaceStr(s,'{piececount}',IntToStr(spritepieces[i]));
-    s := ReplaceStr(s,'{spritesize}',IntToStr(spritesizes[i]));
-    WriteASM(currfile^,s);
-    // Content
-    for j := 0 to piececount-1 do
-      if PieceInSprite(j,i) then // Check if piece is inside sprite.
-        begin
-        s := ReplaceStr(dplcline,'{name}',spritenames[i]);
-        s := ReplaceStr(s,'{size}',IntToStr(piecesize[piecetable[(j*4)+3]]));
-        s := ReplaceStr(s,'{size0}',IntToStr(piecesize[piecetable[(j*4)+3]]-1));
-        s := ReplaceStr(s,'{spritesize}',IntToStr(spritesizes[i]));
-        s := ReplaceStr(s,'{offsetlocal}',IntToStr(piecelocal[j]));
-        s := ReplaceStr(s,'{offsetglobal}',IntToStr(pieceglobal[j]));
-        WriteASM(currfile^,s);
-        end;
-    // Footer
-    s := ReplaceStr(dplcfoot,'{name}',spritenames[i]);
-    WriteASM(currfile^,s);
+    for i := 0 to spritecount-1 do
+      begin
+      // Header
+      s := FormatHeader(dplchead,i);
+      WriteASM(currfile^,s);
+      // Content
+      for j := 0 to piececount-1 do
+        if PieceInSprite(j,i) then // Check if piece is inside sprite.
+          begin
+          s := FormatDPLCLine(dplcline,i,j);
+          WriteASM(currfile^,s);
+          end;
+      // Footer
+      s := ReplaceStr(dplcfoot,'{name}',spritenames[i]);
+      WriteASM(currfile^,s);
+      end;
     end;
 
   { Write gfx file list. }
