@@ -22,7 +22,7 @@ var
   PNG: TPNGImage;
   palarray: array[0..63] of TColor;
   spritenames: array of string;
-  spritetable, piecetable, spritesizes, spritepieces, pieceglobal, piecelocal: array of integer;
+  spritetable, piecetable, spritetiles, spritepieces, pieceglobal, piecelocal: array of integer;
   palstr: array[0..3] of string;
   splitgfxfile: boolean;
 
@@ -109,8 +109,8 @@ begin
   result := ReplaceStr(result,'{size}',IntToStr(piecetable[(pie*4)+3]));
   result := ReplaceStr(result,'{width}',IntToStr(piecewidth[piecetable[(pie*4)+3]] div 8));
   result := ReplaceStr(result,'{height}',IntToStr(pieceheight[piecetable[(pie*4)+3]] div 8));
-  result := ReplaceStr(result,'{offsetlocal}',IntToStr(piecelocal[pie]));
-  result := ReplaceStr(result,'{offsetglobal}',IntToStr(pieceglobal[pie]));
+  result := ReplaceStr(result,'{offsetlocal}',IntToStr(piecelocal[pie])); // Gfx offset within sprite.
+  result := ReplaceStr(result,'{offsetglobal}',IntToStr(pieceglobal[pie])); // Gfx offset within all gfx.
   result := ReplaceStr(result,'{pal}',palstr[piecetable[(pie*4)+2] and 3]);
 end;
 
@@ -118,21 +118,37 @@ end;
 
 function FormatDPLCLine(str: string; spr, pie: integer): string;
 begin
-  result := ReplaceStr(str,'{name}',spritenames[spr]);
-  result := ReplaceStr(result,'{size}',IntToStr(piecesize[piecetable[(pie*4)+3]]));
-  result := ReplaceStr(result,'{size0}',IntToStr(piecesize[piecetable[(pie*4)+3]]-1));
-  result := ReplaceStr(result,'{spritesize}',IntToStr(spritesizes[spr]));
-  result := ReplaceStr(result,'{offsetlocal}',IntToStr(piecelocal[pie]));
-  result := ReplaceStr(result,'{offsetglobal}',IntToStr(pieceglobal[pie]));
+  result := ReplaceStr(str,'{name}',spritenames[spr]); // Sprite name.
+  result := ReplaceStr(result,'{size}',IntToStr(piecesize[piecetable[(pie*4)+3]])); // Tiles in piece.
+  result := ReplaceStr(result,'{size0}',IntToStr(piecesize[piecetable[(pie*4)+3]]-1)); // Tiles in piece (0=1).
+  result := ReplaceStr(result,'{tilecount}',IntToStr(spritetiles[spr])); // Tiles in sprite.
+  result := ReplaceStr(result,'{bytecount}',IntToStr(spritetiles[spr]*32)); // Bytes in sprite.
+  result := ReplaceStr(result,'{offsetlocal}',IntToStr(piecelocal[pie])); // Gfx offset within sprite.
+  result := ReplaceStr(result,'{offsetglobal}',IntToStr(pieceglobal[pie])); // Gfx offset within all gfx.
 end;
 
 { Format header. }
 
 function FormatHeader(str: string; spr: integer): string;
 begin
-  result := ReplaceStr(str,'{name}',spritenames[spr]);
-  result := ReplaceStr(result,'{piececount}',IntToStr(spritepieces[spr]));
-  result := ReplaceStr(result,'{spritesize}',IntToStr(spritesizes[spr]));
+  result := ReplaceStr(str,'{name}',spritenames[spr]); // Sprite name.
+  result := ReplaceStr(result,'{piececount}',IntToStr(spritepieces[spr])); // Pieces in sprite.
+  result := ReplaceStr(result,'{tilecount}',IntToStr(spritetiles[spr])); // Tiles in sprite.
+  result := ReplaceStr(result,'{bytecount}',IntToStr(spritetiles[spr]*32)); // Bytes in sprite.
+end;
+
+{ Format footer. }
+
+function FormatFooter(str: string; spr: integer): string;
+begin
+  result := FormatHeader(str,spr);
+end;
+
+{ Format index. }
+
+function FormatIndex(str: string; spr: integer): string;
+begin
+  result := ReplaceStr(str,'{name}',spritenames[spr]); // Sprite name.
 end;
 
 begin
@@ -242,7 +258,7 @@ begin
     WriteLn('PNG not defined.');
     exit;
     end;
-  SetLength(spritesizes,spritecount);
+  SetLength(spritetiles,spritecount);
   SetLength(spritepieces,spritecount);
   SetLength(pieceglobal,piececount);
   SetLength(piecelocal,piececount);
@@ -258,9 +274,9 @@ begin
       if PieceInSprite(j,i) then // Check if piece is inside sprite.
         begin
         WritePiece(piecetable[j*4],piecetable[(j*4)+1],piecetable[(j*4)+2],piecetable[(j*4)+3]); // Write piece to file.
-        piecelocal[j] := spritesizes[i];
+        piecelocal[j] := spritetiles[i];
         pieceglobal[j] := tilecount;
-        spritesizes[i] := spritesizes[i]+piecesize[piecetable[(j*4)+3]]; // Track total size of sprite in tiles.
+        spritetiles[i] := spritetiles[i]+piecesize[piecetable[(j*4)+3]]; // Track total size of sprite in tiles.
         tilecount := tilecount+piecesize[piecetable[(j*4)+3]]; // Track size of all tiles.
         spritepieces[i] := spritepieces[i]+1; // Track piece count per sprite.
         end;
@@ -281,27 +297,19 @@ begin
   // Index
   WriteASM(currfile^,mapindexhead);
   for i := 0 to spritecount-1 do
-    begin
-    s := ReplaceStr(mapindexline,'{name}',spritenames[i]);
-    WriteASM(currfile^,s);
-    end;
+    WriteASM(currfile^,FormatIndex(mapindexline,i));
   WriteASM(currfile^,mapindexfoot);
 
   for i := 0 to spritecount-1 do
     begin
     // Header
-    s := FormatHeader(maphead,i);
-    WriteASM(currfile^,s);
+    WriteASM(currfile^,FormatHeader(maphead,i));
     // Content
     for j := 0 to piececount-1 do
       if PieceInSprite(j,i) then // Check if piece is inside sprite.
-        begin
-        s := FormatMapLine(mapline,i,j);
-        WriteASM(currfile^,s);
-        end;
+        WriteASM(currfile^,FormatMapLine(mapline,i,j));
     // Footer
-    s := ReplaceStr(mapfoot,'{name}',spritenames[i]);
-    WriteASM(currfile^,s);
+    WriteASM(currfile^,FormatFooter(mapfoot,i));
     end;
 
   { Write DPLC file. }
@@ -317,27 +325,19 @@ begin
     // Index
     WriteASM(currfile^,dplcindexhead);
     for i := 0 to spritecount-1 do
-      begin
-      s := ReplaceStr(dplcindexline,'{name}',spritenames[i]);
-      WriteASM(currfile^,s);
-      end;
+      WriteASM(currfile^,FormatIndex(dplcindexline,i));
     WriteASM(currfile^,dplcindexfoot);
 
     for i := 0 to spritecount-1 do
       begin
       // Header
-      s := FormatHeader(dplchead,i);
-      WriteASM(currfile^,s);
+      WriteASM(currfile^,FormatHeader(dplchead,i));
       // Content
       for j := 0 to piececount-1 do
         if PieceInSprite(j,i) then // Check if piece is inside sprite.
-          begin
-          s := FormatDPLCLine(dplcline,i,j);
-          WriteASM(currfile^,s);
-          end;
+          WriteASM(currfile^,FormatDPLCLine(dplcline,i,j));
       // Footer
-      s := ReplaceStr(dplcfoot,'{name}',spritenames[i]);
-      WriteASM(currfile^,s);
+      WriteASM(currfile^,FormatFooter(dplcfoot,i));
       end;
     end;
 
@@ -351,7 +351,7 @@ begin
     end;
   for i := 0 to spritecount-1 do
     begin
-    if spritesizes[i] = 0 then continue; // Don't list blank sprites.
+    if spritetiles[i] = 0 then continue; // Don't list blank sprites.
     s := ReplaceStr(gfxline,'{file}',outfolder+gfxfilename);
     s := ReplaceStr(s,'{filenopath}',gfxfilename);
     s := ReplaceStr(s,'{name}',spritenames[i]);
