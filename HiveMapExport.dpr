@@ -310,6 +310,17 @@ begin
         WriteASM(currfile^,FormatMapLine(mapline,i,j));
     // Footer
     WriteASM(currfile^,FormatFooter(mapfoot,i));
+    if dplcmode = 'inline' then
+      begin
+      // Inline DPLC header
+      WriteASM(currfile^,FormatHeader(dplchead,i));
+      // Inline DPLC content
+      for j := 0 to piececount-1 do
+        if PieceInSprite(j,i) then // Check if piece is inside sprite.
+          WriteASM(currfile^,FormatDPLCLine(dplcline,i,j));
+      // Inline DPLC footer
+      WriteASM(currfile^,FormatFooter(dplcfoot,i));
+      end;
     end;
 
   { Write DPLC file. }
