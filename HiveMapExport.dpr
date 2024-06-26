@@ -16,7 +16,8 @@ var
   i, j, tilecount, spritecount, piececount: integer;
   outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline, gfxfilename,
   mapindexhead, mapindexfoot, mapindexline, maphead, mapfoot, mapline,
-  dplcindexhead, dplcindexfoot, dplcindexline, dplchead, dplcfoot, dplcline, dplcmode: string;
+  dplcindexhead, dplcindexfoot, dplcindexline, dplchead, dplcfoot, dplcline, dplcmode,
+  histr, lowstr: string;
   inifile, mapasmfile, dplcasmfile, gfxasmfile: textfile;
   currfile: ^textfile;
   PNG: TPNGImage;
@@ -112,6 +113,8 @@ begin
   result := ReplaceStr(result,'{offsetlocal}',IntToStr(piecelocal[pie])); // Gfx offset within sprite.
   result := ReplaceStr(result,'{offsetglobal}',IntToStr(pieceglobal[pie])); // Gfx offset within all gfx.
   result := ReplaceStr(result,'{pal}',palstr[piecetable[(pie*4)+2] and 3]);
+  if piecetable[(pie*4)+2] and $10 <> 0 then result := ReplaceStr(result,'{priority}',histr)
+  else result := ReplaceStr(result,'{priority}',lowstr);
 end;
 
 { Format DPLC line. }
@@ -240,6 +243,8 @@ begin
     else if AnsiPos('pal2str=',s) = 1 then palstr[1] := Explode(s,'pal2str=',1)
     else if AnsiPos('pal3str=',s) = 1 then palstr[2] := Explode(s,'pal3str=',1)
     else if AnsiPos('pal4str=',s) = 1 then palstr[3] := Explode(s,'pal4str=',1)
+    else if AnsiPos('histr=',s) = 1 then histr := Explode(s,'histr=',1)
+    else if AnsiPos('lowstr=',s) = 1 then lowstr := Explode(s,'lowstr=',1)
     else if AnsiPos('dplcindexhead=',s) = 1 then dplcindexhead := Explode(s,'dplcindexhead=',1)
     else if AnsiPos('dplcindexfoot=',s) = 1 then dplcindexfoot := Explode(s,'dplcindexfoot=',1)
     else if AnsiPos('dplcindexline=',s) = 1 then dplcindexline := Explode(s,'dplcindexline=',1)
@@ -273,7 +278,7 @@ begin
     for j := 0 to piececount-1 do
       if PieceInSprite(j,i) then // Check if piece is inside sprite.
         begin
-        WritePiece(piecetable[j*4],piecetable[(j*4)+1],piecetable[(j*4)+2],piecetable[(j*4)+3]); // Write piece to file.
+        WritePiece(piecetable[j*4],piecetable[(j*4)+1],piecetable[(j*4)+2] and 3,piecetable[(j*4)+3]); // Write piece to file.
         piecelocal[j] := spritetiles[i];
         pieceglobal[j] := tilecount;
         spritetiles[i] := spritetiles[i]+piecesize[piecetable[(j*4)+3]]; // Track total size of sprite in tiles.

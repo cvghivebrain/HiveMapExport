@@ -97,7 +97,7 @@ dplc_Blank:
 	.end:
 frame_Walk26:
 		spritemap
-		piece -17, -17, 4x3, 0, pal2
+		piece -17, -17, 4x3, 0
 		piece -6, 7, 3x2, 12
 		piece 15, -1, 1x1, 18
 		endsprite
@@ -119,7 +119,7 @@ dplc_Walk36:
 	.end:
 frame_Stand:
 		spritemap
-		piece -16, -19, 3x4, 0, pal3
+		piece -16, -19, 3x4, 0, hi
 		piece 8, -7, 1x1, 12
 		piece -9, 13, 3x1, 13
 		endsprite
