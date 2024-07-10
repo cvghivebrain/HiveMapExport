@@ -9,15 +9,16 @@ uses
   Vcl.Graphics,
   Vcl.Imaging.pngimage,
   StrUtils,
+  Math,
   FileFunc in 'FileFunc.pas',
   ExplodeFunc in 'ExplodeFunc.pas';
 
 var
-  i, j, tilecount, spritecount, piececount: integer;
+  i, j, tilecount, spritecount, piececount, palused: integer;
   outfolder, inipath, s, mapasm, dplcasm, gfxasm, gfxline, gfxfilename,
   mapindexhead, mapindexfoot, mapindexline, maphead, mapfoot, mapline,
   dplcindexhead, dplcindexfoot, dplcindexline, dplchead, dplcfoot, dplcline, dplcmode,
-  histr, lowstr: string;
+  histr, lowstr, palfilename, palsize: string;
   inifile, mapasmfile, dplcasmfile, gfxasmfile: textfile;
   currfile: ^textfile;
   PNG: TPNGImage;
@@ -154,6 +155,17 @@ begin
   result := ReplaceStr(str,'{name}',spritenames[spr]); // Sprite name.
 end;
 
+{ Convert TColor to Mega Drive colour. }
+
+function TColorToMD(col: TColor): word;
+var r, g, b: byte;
+begin
+  r := col and $FF;
+  g := (col shr 8) and $FF;
+  b := col shr 16;
+  result := ((r and $E0) shr 4)+(g and $E0)+((b and $E0) shl 4);
+end;
+
 begin
 
   { Program start }
@@ -183,6 +195,7 @@ begin
 
   spritecount := 0;
   piececount := 0;
+  palused := 0;
   splitgfxfile := false;
   AssignFile(inifile,ParamStr(1)); // Open ini file.
   Reset(inifile);
@@ -204,6 +217,7 @@ begin
         begin
         if Explode(s,',',i) = '' then break; // Stop at end of palette.
         palarray[i] := StrToTColor(Explode(s,',',i)); // Write palette.
+        Inc(palused); // Count number of colours.
         end;
       end
     else if AnsiPos('sprite=',s) = 1 then
@@ -251,7 +265,9 @@ begin
     else if AnsiPos('dplchead=',s) = 1 then dplchead := Explode(s,'dplchead=',1)
     else if AnsiPos('dplcfoot=',s) = 1 then dplcfoot := Explode(s,'dplcfoot=',1)
     else if AnsiPos('dplcline=',s) = 1 then dplcline := Explode(s,'dplcline=',1)
-    else if AnsiPos('dplc=',s) = 1 then dplcmode := Explode(s,'dplc=',1);
+    else if AnsiPos('dplc=',s) = 1 then dplcmode := Explode(s,'dplc=',1)
+    else if AnsiPos('palfile=',s) = 1 then palfilename := Explode(s,'palfile=',1)
+    else if AnsiPos('palsize=',s) = 1 then palsize := Explode(s,'palsize=',1);
     if mapasm = '' then mapasm := outfolder+'_mappings.asm'; // Default mappings file.
     end;
   WriteLn(IntToStr(spritecount)+' sprites found.');
@@ -373,6 +389,17 @@ begin
     s := ReplaceStr(s,'{name}',spritenames[i]);
     WriteASM(currfile^,s);
     if not splitgfxfile then break; // Only run once for single gfx file.
+    end;
+
+  { Write palette. }
+
+  if palfilename <> '' then
+    begin
+    if palsize <> '' then NewFile(Min(StrToInt(palsize)*2,128)) // Create blank palette file.
+    else NewFile(palused*2);
+    for i := 0 to (fs div 2)-1 do
+      WriteWord(i*2,TColorToMD(palarray[i])); // Write palette.
+    SaveFile(outfolder+palfilename); // Save palette file.
     end;
 
   CloseFile(mapasmfile);
