@@ -166,6 +166,22 @@ begin
   result := ((r and $E0) shr 4)+(g and $E0)+((b and $E0) shl 4);
 end;
 
+{ Check line for setting in INI file. }
+
+function CheckINIAny(s, line: string): boolean;
+begin
+  if AnsiPos(s+'=',line) = 1 then
+    result := true // Setting was found.
+  else result := false;
+end;
+
+function CheckINI(s, line: string): boolean;
+begin
+  if (AnsiPos(s+'=',line) = 1) and (Explode(line,s+'=',1) <> '') then
+    result := true // Setting was found and wasn't blank.
+  else result := false;
+end;
+
 begin
 
   { Program start }
@@ -203,14 +219,14 @@ begin
   while not eof(inifile) do
     begin
     ReadLn(inifile,s);
-    if AnsiPos('image=',s) = 1 then
+    if CheckINI('image=',s) then
       try
       PNG.LoadFromFile(inipath+Explode(s,'image=',1)); // Load PNG.
       except
       WriteLn('Failed to load image.');
       exit;
       end
-    else if AnsiPos('palette=',s) = 1 then
+    else if CheckINI('palette',s) then
       begin
       s := Explode(s,'palette=',1);
       for i := 0 to 63 do
@@ -220,7 +236,7 @@ begin
         Inc(palused); // Count number of colours.
         end;
       end
-    else if AnsiPos('sprite=',s) = 1 then
+    else if CheckINI('sprite',s) then
       begin
       s := Explode(s,'sprite=',1);
       SetLength(spritenames,Length(spritenames)+1); // Add sprite.
@@ -232,7 +248,7 @@ begin
       spritetable[(spritecount*4)+3] := StrToInt(Explode(s,',',4)); // Sprite height.
       Inc(spritecount);
       end
-    else if AnsiPos('piece=',s) = 1 then
+    else if CheckINI('piece',s) then
       begin
       s := Explode(s,'piece=',1);
       SetLength(piecetable,Length(piecetable)+4); // Add piece.
@@ -242,32 +258,32 @@ begin
       piecetable[(piececount*4)+3] := StrToInt(Explode(s,',',3)); // Piece size.
       Inc(piececount);
       end
-    else if AnsiPos('mapasmfile=',s) = 1 then mapasm := outfolder+Explode(s,'mapasmfile=',1)
-    else if AnsiPos('dplcasmfile=',s) = 1 then dplcasm := outfolder+Explode(s,'dplcasmfile=',1)
-    else if AnsiPos('gfxasmfile=',s) = 1 then gfxasm := outfolder+Explode(s,'gfxasmfile=',1)
-    else if AnsiPos('gfxfile=',s) = 1 then gfxfilename := Explode(s,'gfxfile=',1)
-    else if AnsiPos('gfxline=',s) = 1 then gfxline := Explode(s,'gfxline=',1)
-    else if AnsiPos('mapindexhead=',s) = 1 then mapindexhead := Explode(s,'mapindexhead=',1)
-    else if AnsiPos('mapindexfoot=',s) = 1 then mapindexfoot := Explode(s,'mapindexfoot=',1)
-    else if AnsiPos('mapindexline=',s) = 1 then mapindexline := Explode(s,'mapindexline=',1)
-    else if AnsiPos('maphead=',s) = 1 then maphead := Explode(s,'maphead=',1)
-    else if AnsiPos('mapfoot=',s) = 1 then mapfoot := Explode(s,'mapfoot=',1)
-    else if AnsiPos('mapline=',s) = 1 then mapline := Explode(s,'mapline=',1)
-    else if AnsiPos('pal1str=',s) = 1 then palstr[0] := Explode(s,'pal1str=',1)
-    else if AnsiPos('pal2str=',s) = 1 then palstr[1] := Explode(s,'pal2str=',1)
-    else if AnsiPos('pal3str=',s) = 1 then palstr[2] := Explode(s,'pal3str=',1)
-    else if AnsiPos('pal4str=',s) = 1 then palstr[3] := Explode(s,'pal4str=',1)
-    else if AnsiPos('histr=',s) = 1 then histr := Explode(s,'histr=',1)
-    else if AnsiPos('lowstr=',s) = 1 then lowstr := Explode(s,'lowstr=',1)
-    else if AnsiPos('dplcindexhead=',s) = 1 then dplcindexhead := Explode(s,'dplcindexhead=',1)
-    else if AnsiPos('dplcindexfoot=',s) = 1 then dplcindexfoot := Explode(s,'dplcindexfoot=',1)
-    else if AnsiPos('dplcindexline=',s) = 1 then dplcindexline := Explode(s,'dplcindexline=',1)
-    else if AnsiPos('dplchead=',s) = 1 then dplchead := Explode(s,'dplchead=',1)
-    else if AnsiPos('dplcfoot=',s) = 1 then dplcfoot := Explode(s,'dplcfoot=',1)
-    else if AnsiPos('dplcline=',s) = 1 then dplcline := Explode(s,'dplcline=',1)
-    else if AnsiPos('dplc=',s) = 1 then dplcmode := Explode(s,'dplc=',1)
-    else if AnsiPos('palfile=',s) = 1 then palfilename := Explode(s,'palfile=',1)
-    else if AnsiPos('palsize=',s) = 1 then palsize := Explode(s,'palsize=',1);
+    else if CheckINI('mapasmfile',s) then mapasm := outfolder+Explode(s,'mapasmfile=',1)
+    else if CheckINI('dplcasmfile',s) then dplcasm := outfolder+Explode(s,'dplcasmfile=',1)
+    else if CheckINI('gfxasmfile',s) then gfxasm := outfolder+Explode(s,'gfxasmfile=',1)
+    else if CheckINI('gfxfile',s) then gfxfilename := Explode(s,'gfxfile=',1)
+    else if CheckINIAny('gfxline',s) then gfxline := Explode(s,'gfxline=',1)
+    else if CheckINIAny('mapindexhead',s) then mapindexhead := Explode(s,'mapindexhead=',1)
+    else if CheckINIAny('mapindexfoot',s) then mapindexfoot := Explode(s,'mapindexfoot=',1)
+    else if CheckINIAny('mapindexline',s) then mapindexline := Explode(s,'mapindexline=',1)
+    else if CheckINIAny('maphead',s) then maphead := Explode(s,'maphead=',1)
+    else if CheckINIAny('mapfoot',s) then mapfoot := Explode(s,'mapfoot=',1)
+    else if CheckINIAny('mapline',s) then mapline := Explode(s,'mapline=',1)
+    else if CheckINIAny('pal1str',s) then palstr[0] := Explode(s,'pal1str=',1)
+    else if CheckINIAny('pal2str',s) then palstr[1] := Explode(s,'pal2str=',1)
+    else if CheckINIAny('pal3str',s) then palstr[2] := Explode(s,'pal3str=',1)
+    else if CheckINIAny('pal4str',s) then palstr[3] := Explode(s,'pal4str=',1)
+    else if CheckINIAny('histr',s) then histr := Explode(s,'histr=',1)
+    else if CheckINIAny('lowstr',s) then lowstr := Explode(s,'lowstr=',1)
+    else if CheckINIAny('dplcindexhead',s) then dplcindexhead := Explode(s,'dplcindexhead=',1)
+    else if CheckINIAny('dplcindexfoot',s) then dplcindexfoot := Explode(s,'dplcindexfoot=',1)
+    else if CheckINIAny('dplcindexline',s) then dplcindexline := Explode(s,'dplcindexline=',1)
+    else if CheckINIAny('dplchead',s) then dplchead := Explode(s,'dplchead=',1)
+    else if CheckINIAny('dplcfoot',s) then dplcfoot := Explode(s,'dplcfoot=',1)
+    else if CheckINIAny('dplcline',s) then dplcline := Explode(s,'dplcline=',1)
+    else if CheckINIAny('dplc',s) then dplcmode := Explode(s,'dplc=',1)
+    else if CheckINI('palfile',s) then palfilename := Explode(s,'palfile=',1)
+    else if CheckINIAny('palsize',s) then palsize := Explode(s,'palsize=',1);
     if mapasm = '' then mapasm := outfolder+'_mappings.asm'; // Default mappings file.
     end;
   WriteLn(IntToStr(spritecount)+' sprites found.');
@@ -304,11 +320,16 @@ begin
     s := ReplaceStr(gfxfilename,'{name}',spritenames[i]);
     if splitgfxfile and (spritepieces[i] > 0) then SaveFile(outfolder+s); // Save sprite file if it contained pieces.
     end;
-  if not splitgfxfile then SaveFile(outfolder+gfxfilename);
+  if not splitgfxfile then
+    begin
+    SaveFile(outfolder+gfxfilename);
+    WriteLn('Graphics file: '+outfolder+gfxfilename);
+    end;
   WriteLn(IntToStr(tilecount)+' tiles found, totalling '+IntToStr(tilecount*32)+' bytes.');
 
   { Open main mappings file. }
 
+  WriteLn('Mappings file: '+mapasm);
   AssignFile(mapasmfile,mapasm); // Open asm file.
   ReWrite(mapasmfile); // Make file editable.
   currfile := @mapasmfile;
@@ -350,6 +371,7 @@ begin
     begin
     if dplcasm <> '' then
       begin
+      WriteLn('DPLC file: '+dplcasm);
       AssignFile(dplcasmfile,dplcasm); // Open asm file.
       ReWrite(dplcasmfile); // Make file editable.
       currfile := @dplcasmfile; // Switch to DPLC asm file.
@@ -377,6 +399,7 @@ begin
 
   if gfxasm <> '' then
     begin
+    WriteLn('Graphics list file: '+gfxasm);
     AssignFile(gfxasmfile,gfxasm); // Open asm file.
     ReWrite(gfxasmfile); // Make file editable.
     currfile := @gfxasmfile; // Switch to gfx asm file.
@@ -399,6 +422,7 @@ begin
     else NewFile(palused*2);
     for i := 0 to (fs div 2)-1 do
       WriteWord(i*2,TColorToMD(palarray[i])); // Write palette.
+    WriteLn('Palette file: '+outfolder+palfilename);
     SaveFile(outfolder+palfilename); // Save palette file.
     end;
 
