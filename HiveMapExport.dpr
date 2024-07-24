@@ -219,8 +219,9 @@ begin
   while not eof(inifile) do
     begin
     ReadLn(inifile,s);
-    if CheckINI('image=',s) then
+    if CheckINI('image',s) then
       try
+      WriteLn('Image file: '+inipath+Explode(s,'image=',1));
       PNG.LoadFromFile(inipath+Explode(s,'image=',1)); // Load PNG.
       except
       WriteLn('Failed to load image.');

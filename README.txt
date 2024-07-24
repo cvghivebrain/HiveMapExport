@@ -14,3 +14,6 @@ Changelog
 
 1.1:
 - Fixed bug.
+
+1.2:
+- Fixed major bug.
